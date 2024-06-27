@@ -1,0 +1,48 @@
+version: '3.1'
+
+services:
+  wordpress:
+    image: wordpress:6.4
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: smailydev1
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - wordpress:/var/www/html
+      - ./src/:/var/www/html/wp-content/plugins/
+      - ./.sandbox/php.ini:/usr/local/etc/php/conf.d/99-smly4wp.ini
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_ROOT_PASSWORD: smailydev1
+    volumes:
+      - db:/var/lib/mysql
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 26677
+        hard: 46677
+
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8888:80'
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: smailydev1
+      MYSQL_ROOT_PASSWORD: smailydev1
+
+volumes:
+  wordpress:
+  db:
